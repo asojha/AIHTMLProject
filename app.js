@@ -183,6 +183,34 @@ function ScoreCard({ scoreData }) {
     );
 }
 
+/**
+ * MessageBox Component - Displays congratulatory or encouragement messages
+ */
+function MessageBox({ message, type, onClose }) {
+    if (!message) return null;
+
+    const handleClose = () => {
+        const box = document.querySelector('.message-box');
+        if (box) {
+            box.classList.add('hiding');
+            setTimeout(() => {
+                onClose();
+            }, 300);
+        } else {
+            onClose();
+        }
+    };
+
+    return (
+        <div className={`message-box ${type}`}>
+            <div className="message-content">{message}</div>
+            <button className="message-close" onClick={handleClose} aria-label="Close">
+                ×
+            </button>
+        </div>
+    );
+}
+
 // ============================================
 // Main App Component
 // ============================================
@@ -200,6 +228,8 @@ function App() {
     const [feedback, setFeedback] = useState({});
     const [showValidate, setShowValidate] = useState(false);
     const [scoreData, setScoreData] = useState(null);
+    const [message, setMessage] = useState(null);
+    const [messageType, setMessageType] = useState('success');
 
     const operations = ['addition', 'subtraction', 'multiplication', 'division'];
 
@@ -219,6 +249,7 @@ function App() {
         setAnswers({});
         setFeedback({});
         setScoreData(null);
+        setMessage(null);
         setShowValidate(true);
     };
 
@@ -240,6 +271,7 @@ function App() {
         setAnswers({});
         setFeedback({});
         setScoreData(null);
+        setMessage(null);
         setShowValidate(true);
     };
 
@@ -342,17 +374,57 @@ function App() {
         };
         setScoreData(scoreInfo);
 
+        // Show appropriate message based on score
+        let messageText = '';
+        let messageType = 'success';
+        
         if (correctCount === total) {
-            setTimeout(() => {
-                alert('🎉 Congratulations! All answers are correct!');
-            }, 100);
+            messageText = '🎉 Perfect! All answers are correct! You\'re a math superstar! ⭐';
+            messageType = 'success';
+        } else if (percentage >= 90) {
+            messageText = '🌟 Excellent work! You scored ' + percentage + '%! Outstanding performance!';
+            messageType = 'success';
+        } else if (percentage >= 80) {
+            messageText = '🎊 Great job! You scored ' + percentage + '%! Keep up the fantastic work!';
+            messageType = 'success';
+        } else if (percentage >= 70) {
+            messageText = '👍 Good effort! You scored ' + percentage + '%! You\'re doing well!';
+            messageType = 'encouragement';
+        } else if (percentage >= 60) {
+            messageText = '✅ Nice try! You scored ' + percentage + '%! Keep practicing to improve!';
+            messageType = 'encouragement';
+        } else {
+            messageText = '💪 You scored ' + percentage + '%. Don\'t give up! Practice makes perfect. Try again!';
+            messageType = 'try-again';
         }
+        
+        setMessage(messageText);
+        setMessageType(messageType);
+        
+        // Auto-hide message after 5 seconds
+        setTimeout(() => {
+            if (messageText) {
+                const box = document.querySelector('.message-box');
+                if (box) {
+                    box.classList.add('hiding');
+                    setTimeout(() => {
+                        setMessage(null);
+                    }, 300);
+                }
+            }
+        }, 5000);
     };
 
     // Render
     return (
-        <div className="container">
-            <h1>🔢 Math Problems Generator</h1>
+        <>
+            <MessageBox 
+                message={message} 
+                type={messageType} 
+                onClose={() => setMessage(null)} 
+            />
+            <div className="container">
+                <h1>🔢 Math Problems Generator</h1>
             
             <div className="operation-buttons">
                 {operations.map(op => (
@@ -406,7 +478,8 @@ function App() {
                     {scoreData && <ScoreCard scoreData={scoreData} />}
                 </>
             )}
-        </div>
+            </div>
+        </>
     );
 }
 
