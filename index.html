@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Problems Generator</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .operation-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .operation-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 12px 25px;
+            font-size: 1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .operation-btn:hover {
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+
+        .operation-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            margin: 0 10px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .generate-all-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+            margin: 0 10px;
+        }
+
+        .generate-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+        }
+
+        .generate-all-btn:active {
+            transform: translateY(0);
+        }
+
+        .problems-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .problems-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .problems-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .problems-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .problem {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 1.3em;
+            text-align: center;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .problem:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+
+        .problem-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .problem-number {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .problem-type {
+            font-size: 0.7em;
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 12px;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .problem-text {
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .problem-input {
+            width: 100%;
+            max-width: 120px;
+            padding: 10px;
+            font-size: 1em;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+            margin: 0 auto;
+        }
+
+        .problem-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .problem.correct {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .problem.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .problem-feedback {
+            margin-top: 5px;
+            font-size: 0.85em;
+            font-weight: bold;
+            min-height: 20px;
+        }
+
+        .problem-feedback.correct {
+            color: #28a745;
+        }
+
+        .problem-feedback.incorrect {
+            color: #dc3545;
+        }
+
+        .validate-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+            margin: 0 10px;
+        }
+
+        .validate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.6);
+        }
+
+        .validate-btn:active {
+            transform: translateY(0);
+        }
+
+        .validate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 167, 38, 0.4);
+            margin: 0 10px;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 167, 38, 0.6);
+        }
+
+        .save-btn:active {
+            transform: translateY(0);
+        }
+
+        .score-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .score-card h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+
+        .score-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .score-breakdown {
+            margin-top: 25px;
+        }
+
+        .score-breakdown h3 {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .breakdown-operation {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .breakdown-score {
+            font-size: 1.2em;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function generateRandomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function getOperationSymbol(operation) {
+            const symbols = {
+                'addition': '+',
+                'subtraction': '-',
+                'multiplication': '×',
+                'division': '÷'
+            };
+            return symbols[operation] || '+';
+        }
+
+        function getOperationName(operation) {
+            const names = {
+                'addition': 'Add',
+                'subtraction': 'Sub',
+                'multiplication': 'Mult',
+                'division': 'Div'
+            };
+            return names[operation] || 'Add';
+        }
+
+        function generateProblem(operation) {
+            let num1, num2, correctAnswer;
+
+            switch(operation) {
+                case 'addition':
+                    num1 = generateRandomNumber(1, 100);
+                    num2 = generateRandomNumber(1, 100);
+                    correctAnswer = num1 + num2;
+                    break;
+                
+                case 'subtraction':
+                    num1 = generateRandomNumber(10, 100);
+                    num2 = generateRandomNumber(1, num1);
+                    correctAnswer = num1 - num2;
+                    break;
+                
+                case 'multiplication':
+                    num1 = generateRandomNumber(1, 12);
+                    num2 = generateRandomNumber(1, 12);
+                    correctAnswer = num1 * num2;
+                    break;
+                
+                case 'division':
+                    num2 = generateRandomNumber(2, 12);
+                    const quotient = generateRandomNumber(1, 12);
+                    num1 = num2 * quotient;
+                    correctAnswer = quotient;
+                    break;
+                
+                default:
+                    num1 = generateRandomNumber(1, 100);
+                    num2 = generateRandomNumber(1, 100);
+                    correctAnswer = num1 + num2;
+            }
+
+            return { num1, num2, correctAnswer, operation };
+        }
+
+        function ProblemCard({ problem, index, onAnswerChange, feedback }) {
+            const operationSymbol = getOperationSymbol(problem.operation);
+            const operationName = getOperationName(problem.operation);
+            const stepValue = problem.operation === 'division' ? '0.01' : '1';
+            const inputId = `answer-${problem.id}`;
+            const feedbackId = `feedback-${problem.id}`;
+            
+            const handleKeyPress = (e) => {
+                if (e.key === 'Enter') {
+                    const scoreBtn = document.querySelector('.validate-btn');
+                    if (scoreBtn) scoreBtn.click();
+                }
+            };
+
+            return (
+                <div className={`problem ${feedback?.status || ''}`}>
+                    <div className="problem-header">
+                        <span className="problem-number">#{index + 1}</span>
+                        <span className="problem-type">{operationName}</span>
+                    </div>
+                    <div className="problem-text">
+                        {problem.num1} {operationSymbol} {problem.num2} = 
+                    </div>
+                    <input
+                        type="number"
+                        id={inputId}
+                        className="problem-input"
+                        placeholder="?"
+                        step={stepValue}
+                        onChange={(e) => onAnswerChange(problem.id, e.target.value)}
+                        onKeyPress={handleKeyPress}
+                    />
+                    <div className={`problem-feedback ${feedback?.status || ''}`} id={feedbackId}>
+                        {feedback?.message || ''}
+                    </div>
+                </div>
+            );
+        }
+
+        function ScoreCard({ scoreData }) {
+            if (!scoreData) return null;
+
+            const { total, correct, incorrect, percentage, breakdown } = scoreData;
+
+            return (
+                <div className="score-card">
+                    <h2>📊 Score Card</h2>
+                    <div className="score-stats">
+                        <div className="stat-item">
+                            <div className="stat-label">Total Problems</div>
+                            <div className="stat-value">{total}</div>
+                        </div>
+                        <div className="stat-item">
+                            <div className="stat-label">Correct</div>
+                            <div className="stat-value" style={{ color: '#4caf50' }}>{correct}</div>
+                        </div>
+                        <div className="stat-item">
+                            <div className="stat-label">Incorrect</div>
+                            <div className="stat-value" style={{ color: '#f44336' }}>{incorrect}</div>
+                        </div>
+                        <div className="stat-item">
+                            <div className="stat-label">Score</div>
+                            <div className="stat-value">{percentage}%</div>
+                        </div>
+                    </div>
+                    {breakdown && Object.keys(breakdown).length > 0 && (
+                        <div className="score-breakdown">
+                            <h3>Breakdown by Operation</h3>
+                            {Object.entries(breakdown).map(([operation, stats]) => (
+                                <div key={operation} className="breakdown-item">
+                                    <span className="breakdown-operation">
+                                        {getOperationName(operation)}: {stats.correct}/{stats.total}
+                                    </span>
+                                    <span className="breakdown-score">
+                                        {Math.round((stats.correct / stats.total) * 100)}%
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        function App() {
+            const [selectedOperation, setSelectedOperation] = useState('addition');
+            const [problems, setProblems] = useState([]);
+            const [answers, setAnswers] = useState({});
+            const [feedback, setFeedback] = useState({});
+            const [showValidate, setShowValidate] = useState(false);
+            const [scoreData, setScoreData] = useState(null);
+
+            const operations = ['addition', 'subtraction', 'multiplication', 'division'];
+
+            const generateProblems = (operation = selectedOperation) => {
+                const newProblems = [];
+                for (let i = 0; i < 5; i++) {
+                    const problem = generateProblem(operation);
+                    newProblems.push({
+                        ...problem,
+                        id: `${operation}-${Date.now()}-${i}`
+                    });
+                }
+                setProblems(newProblems);
+                setAnswers({});
+                setFeedback({});
+                setScoreData(null);
+                setShowValidate(true);
+            };
+
+            const generateAllTypes = () => {
+                const allProblems = [];
+                operations.forEach(operation => {
+                    for (let i = 0; i < 5; i++) {
+                        const problem = generateProblem(operation);
+                        allProblems.push({
+                            ...problem,
+                            id: `${operation}-${Date.now()}-${i}`
+                        });
+                    }
+                });
+                setProblems(allProblems);
+                setAnswers({});
+                setFeedback({});
+                setScoreData(null);
+                setShowValidate(true);
+            };
+
+            const handleAnswerChange = (problemId, value) => {
+                setAnswers(prev => ({
+                    ...prev,
+                    [problemId]: value
+                }));
+                // Clear feedback for this problem when user changes answer
+                if (feedback[problemId]) {
+                    setFeedback(prev => {
+                        const newFeedback = { ...prev };
+                        delete newFeedback[problemId];
+                        return newFeedback;
+                    });
+                }
+            };
+
+            const saveSession = () => {
+                const sessionData = {
+                    timestamp: new Date().toISOString(),
+                    problems: problems,
+                    answers: answers,
+                    feedback: feedback,
+                    scoreData: scoreData
+                };
+                
+                try {
+                    const sessions = JSON.parse(localStorage.getItem('mathSessions') || '[]');
+                    sessions.push(sessionData);
+                    localStorage.setItem('mathSessions', JSON.stringify(sessions));
+                    alert('✅ Session saved successfully!');
+                } catch (error) {
+                    alert('❌ Error saving session: ' + error.message);
+                }
+            };
+
+            const validateAnswers = () => {
+                const newFeedback = {};
+                let correctCount = 0;
+                let incorrectCount = 0;
+                const breakdown = {};
+
+                problems.forEach(problem => {
+                    const userAnswer = problem.operation === 'division' 
+                        ? parseFloat(answers[problem.id]) 
+                        : parseInt(answers[problem.id]);
+                    
+                    const isCorrect = userAnswer === problem.correctAnswer;
+                    const isEmpty = !answers[problem.id] || isNaN(userAnswer);
+
+                    // Initialize breakdown for this operation
+                    if (!breakdown[problem.operation]) {
+                        breakdown[problem.operation] = { correct: 0, total: 0 };
+                    }
+                    breakdown[problem.operation].total++;
+
+                    if (isEmpty) {
+                        newFeedback[problem.id] = {
+                            status: 'incorrect',
+                            message: 'Please enter an answer'
+                        };
+                        incorrectCount++;
+                    } else if (isCorrect) {
+                        newFeedback[problem.id] = {
+                            status: 'correct',
+                            message: '✓ Correct!'
+                        };
+                        correctCount++;
+                        breakdown[problem.operation].correct++;
+                    } else {
+                        newFeedback[problem.id] = {
+                            status: 'incorrect',
+                            message: `✗ Incorrect. Answer: ${problem.correctAnswer}`
+                        };
+                        incorrectCount++;
+                    }
+                });
+
+                setFeedback(newFeedback);
+
+                // Calculate score data
+                const total = problems.length;
+                const percentage = Math.round((correctCount / total) * 100);
+                const scoreInfo = {
+                    total,
+                    correct: correctCount,
+                    incorrect: incorrectCount,
+                    percentage,
+                    breakdown
+                };
+                setScoreData(scoreInfo);
+
+                if (correctCount === total) {
+                    setTimeout(() => {
+                        alert('🎉 Congratulations! All answers are correct!');
+                    }, 100);
+                }
+            };
+
+            return (
+                <div className="container">
+                    <h1>🔢 Math Problems Generator</h1>
+                    
+                    <div className="operation-buttons">
+                        {operations.map(op => (
+                            <button
+                                key={op}
+                                className={`operation-btn ${selectedOperation === op ? 'active' : ''}`}
+                                onClick={() => setSelectedOperation(op)}
+                            >
+                                {op === 'addition' && '➕ Addition'}
+                                {op === 'subtraction' && '➖ Subtraction'}
+                                {op === 'multiplication' && '✖️ Multiplication'}
+                                {op === 'division' && '➗ Division'}
+                            </button>
+                        ))}
+                    </div>
+                    
+                    <div className="button-container">
+                        <button className="generate-btn" onClick={() => generateProblems()}>
+                            Generate 5 Problems
+                        </button>
+                        <button className="generate-all-btn" onClick={generateAllTypes}>
+                            Generate All Types (5 each)
+                        </button>
+                    </div>
+
+                    {problems.length > 0 && (
+                        <>
+                            <div className="problems-container">
+                                {problems.map((problem, index) => (
+                                    <ProblemCard
+                                        key={problem.id}
+                                        problem={problem}
+                                        index={index}
+                                        onAnswerChange={handleAnswerChange}
+                                        feedback={feedback[problem.id]}
+                                    />
+                                ))}
+                            </div>
+                            
+                            {showValidate && (
+                                <div className="button-container">
+                                    <button className="save-btn" onClick={saveSession}>
+                                        💾 Save Session
+                                    </button>
+                                    <button className="validate-btn" onClick={validateAnswers}>
+                                        Score
+                                    </button>
+                                </div>
+                            )}
+
+                            {scoreData && <ScoreCard scoreData={scoreData} />}
+                        </>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
