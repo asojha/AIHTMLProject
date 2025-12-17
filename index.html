@@ -76,20 +76,20 @@ function generateProblem(operation) {
 
     switch(operation) {
         case 'addition':
-            num1 = generateRandomNumber(1, 100);
-            num2 = generateRandomNumber(1, 100);
+            num1 = generateRandomNumber(2, 100);
+            num2 = generateRandomNumber(2, 100);
             correctAnswer = num1 + num2;
             break;
         
         case 'subtraction':
-            num1 = generateRandomNumber(10, 100);
-            num2 = generateRandomNumber(1, num1);
+            num1 = generateRandomNumber(15, 100);
+            num2 = generateRandomNumber(12, num1);
             correctAnswer = num1 - num2;
             break;
         
         case 'multiplication':
-            num1 = generateRandomNumber(1, 12);
-            num2 = generateRandomNumber(1, 12);
+            num1 = generateRandomNumber(3, 12);
+            num2 = generateRandomNumber(4, 12);
             correctAnswer = num1 * num2;
             break;
         
@@ -164,7 +164,7 @@ function ScoreCard({ scoreData }) {
     const { total, correct, incorrect, percentage, breakdown } = scoreData;
 
     return (
-        <div className="score-card">
+        <div className="score-card" id="score-card-id">
             <h2>📊 Score Card</h2>
             <div className="score-stats">
                 <div className="stat-item">
@@ -287,6 +287,7 @@ function App() {
     const [answers, setAnswers] = useState({});
     const [feedback, setFeedback] = useState({});
     const [showValidate, setShowValidate] = useState(false);
+    const [showProblems , setShowProblems] = useState(false);
     const [scoreData, setScoreData] = useState(null);
     const [message, setMessage] = useState(null);
     const [messageType, setMessageType] = useState('success');
@@ -338,6 +339,19 @@ function App() {
         setTimeLeft(300); // Reset to 5 minutes
     };
 
+    const scrollToDivById = (id) => {
+        const div = document.getElementById(id);
+        console.log("div"+div);
+        if (div) {
+            div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+        }
+        else
+        {
+            console.log("div not found");
+        }
+    };
+
     /**
      * Generates 5 problems for the selected operation
      */
@@ -356,6 +370,7 @@ function App() {
         setScoreData(null);
         setMessage(null);
         setShowValidate(true);
+        scrollToDivById('problems-container-id');
         // Auto-start timer when problems are generated
         resetTimer();
         setTimeout(() => startTimer(), 100);
@@ -381,11 +396,42 @@ function App() {
         setScoreData(null);
         setMessage(null);
         setShowValidate(true);
+        scrollToDivById('problems-container-id');
         // Auto-start timer when problems are generated
         resetTimer();
         setTimeout(() => startTimer(), 100);
     };
 
+    const showPage=()=>{
+    console.log("showPage");
+        setShowProblems(true);
+    };
+
+ 
+
+    const generateAllTypesRandom = () => {
+        const allProblemsRandom = [];
+        for (let i = 0; i < 20; i++) {
+            const randomOpNumber=Math.floor(Math.random() * operations.length);
+            console.log(randomOpNumber);
+            const problem = generateProblem(operations[Math.floor(randomOpNumber)]);
+            allProblemsRandom.push({
+                ...problem,
+                id: `${operations[randomOpNumber]}-${Date.now()}-${i}`
+            });
+           
+        }
+        setProblems(allProblemsRandom);
+        setAnswers({});
+        setFeedback({});
+        setScoreData(null);
+        setMessage(null);
+        setShowValidate(true);
+        scrollToDivById('problems-container-id');
+        // Auto-start timer when problems are generated
+        resetTimer();
+        setTimeout(() => startTimer(), 100);
+    };
     /**
      * Handles answer input changes
      */
@@ -484,28 +530,31 @@ function App() {
             breakdown
         };
         setScoreData(scoreInfo);
-
+    
+scrollToDivById("score-card-id");
         // Show appropriate message based on score
         let messageText = '';
         let messageType = 'success';
+        let name = document.getElementById('nameInput').value;
+        console.log(name);
         
         if (correctCount === total) {
-            messageText = '🎉 Perfect! All answers are correct! You\'re a math superstar! ⭐';
+            messageText = '🎉 Perfect! All answers are correct! ' + name + ' You\'re a math superstar! ⭐';
             messageType = 'success';
         } else if (percentage >= 90) {
-            messageText = '🌟 Excellent work! You scored ' + percentage + '%! Outstanding performance!';
+            messageText = '🌟 Excellent work! ' + name + ' You scored ' + percentage + '%! Outstanding performance!';
             messageType = 'success';
         } else if (percentage >= 80) {
-            messageText = '🎊 Great job! You scored ' + percentage + '%! Keep up the fantastic work!';
+            messageText = '🎊 Great job! ' + name + ' You scored ' + percentage + '%! Keep up the fantastic work!';
             messageType = 'success';
         } else if (percentage >= 70) {
-            messageText = '👍 Good effort! You scored ' + percentage + '%! You\'re doing well!';
+            messageText = '👍 Good effort! ' + name + ' You scored ' + percentage + '%! You\'re doing well!';
             messageType = 'encouragement';
         } else if (percentage >= 60) {
-            messageText = '✅ Nice try! You scored ' + percentage + '%! Keep practicing to improve!';
+            messageText = '✅ Nice try! ' + name + ' You scored ' + percentage + '%! Keep practicing to improve!';
             messageType = 'encouragement';
         } else {
-            messageText = '💪 You scored ' + percentage + '%. Don\'t give up! Practice makes perfect. Try again!';
+            messageText = '💪 ' + name + ' You scored ' + percentage + '%. Don\'t give up! Practice makes perfect. Try again!';
             messageType = 'try-again';
         }
         
@@ -543,7 +592,16 @@ function App() {
             />
             <div className="container">
                 <h1>🔢 Math Problems Generator</h1>
-            
+                
+    <div className="name-box">
+        <h2>Enter your name:</h2>
+        <input className="name-box-input" type="text" id="nameInput" placeholder="Name"/>
+        <button className="name-box-button" onClick={showPage}>Show Problems</button>
+    </div>
+
+
+                
+           {showProblems && (
             <div className="operation-buttons">
                 {operations.map(op => (
                     <button
@@ -558,7 +616,8 @@ function App() {
                     </button>
                 ))}
             </div>
-            
+            )}
+            {showProblems && (
             <div className="button-container">
                 <button className="generate-btn" onClick={() => generateProblems()}>
                     Generate 5 Problems
@@ -566,11 +625,15 @@ function App() {
                 <button className="generate-all-btn" onClick={generateAllTypes}>
                     Generate All Types (5 each)
                 </button>
+                <button className="generate-all-btn-random" onClick={generateAllTypesRandom}>
+                    Generate All Types random
+                </button>
             </div>
+            )}
 
             {problems.length > 0 && (
                 <>
-                    <div className="problems-container">
+                    <div className="problems-container" id="problems-container-id">
                         {problems.map((problem, index) => (
                             <ProblemCard
                                 key={problem.id}

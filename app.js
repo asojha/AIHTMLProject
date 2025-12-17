@@ -275,6 +275,25 @@ function App() {
         setShowValidate(true);
     };
 
+    const generateAllTypesRandom = () => {
+        const allProblems = [];
+       // operations.forEach(operation => {
+            for (let i = 0; i < 20; i++) {
+                const problem = generateProblem(operations[Math.floor(Math.random() * operations.length)]);
+                allProblems.push({
+                    ...problem,
+                    id: `${operation}-${Date.now()}-${i}`
+                });
+            }
+      //  });
+        setProblems(allProblems);
+        setAnswers({});
+        setFeedback({});
+        setScoreData(null);
+        setMessage(null);
+        setShowValidate(true);
+    };
+    
     /**
      * Handles answer input changes
      */
@@ -447,6 +466,9 @@ function App() {
                 </button>
                 <button className="generate-all-btn" onClick={generateAllTypes}>
                     Generate All Types (5 each)
+                </button>
+                <button className="generate-all-btn" onClick={generateAllTypesRandom}>
+                    Generate All Types (Random)
                 </button>
             </div>
 
